@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 func Grading(average float64) string {
 	if average >= 90 && average <= 100 {
@@ -16,10 +19,26 @@ func Grading(average float64) string {
 	}
 }
 
-func CalculateAverage(mtk, ipa, bahasaIndonesia, bahasaInggris int) float64 {
-	sum := float64(mtk + ipa + bahasaIndonesia + bahasaInggris)/4
+func CalculateAverage(mtk, ipa, bahasaIndonesia, bahasaInggris any) float64 {
+
+	mtkScore := mtk.(int)
+	ipaScore := ipa.(int)
+	bahasaIndonesiaScore := bahasaIndonesia.(int)
+	bahasaInggrisScore := bahasaInggris.(int)
+
+	if mtkScore == 0 || bahasaIndonesiaScore == 0 || bahasaInggrisScore == 0 || ipaScore == 0 {
+		return 0
+	}
+
+	sum := float64(mtkScore+ipaScore+bahasaIndonesiaScore+bahasaInggrisScore) / 4
 	return sum
 }
+
+func validateType(value any, targetType string) bool {
+	valueType := reflect.TypeOf(value).Kind().String()
+	return valueType == targetType
+}
+
 func main() {
 	/*
 		Terms & Condition
@@ -32,15 +51,36 @@ func main() {
 
 	mtk := 80
 	bahasaIndonesia := 90
-	bahasaInggris := 89
+	bahasaInggris := "89"
 	ipa := 69
 
-	if mtk == 0 || bahasaIndonesia == 0 || bahasaInggris == 0 || ipa == 0 {
-		fmt.Println("Semua nilai harus diisi.")
+	//Validasi tipe data
+	isMTKInt := validateType(mtk, "int")
+	if !isMTKInt {
+		fmt.Println("Nilai MTK harus dalam tipe data angka")
+		return
+	}
+	isbahasaIndonesiaInt := validateType(bahasaIndonesia, "int")
+	if !isbahasaIndonesiaInt {
+		fmt.Println("Nilai Bahasa Indonesia harus dalam tipe data angka")
+		return
+	}
+	isbahasaInggrisInt := validateType(bahasaInggris, "int")
+	if !isbahasaInggrisInt {
+		fmt.Println("Nilai bahasa Inggris harus dalam tipe data angka")
+		return
+	}
+	isIpaInt := validateType(ipa, "int")
+	if !isIpaInt {
+		fmt.Println("Nilai ipa harus dalam tipe data angka")
 		return
 	}
 
-	average := CalculateAverage(80,90,89,69)
+	average := CalculateAverage(mtk, bahasaIndonesia, bahasaInggris, ipa)
+	if average == 0 {
+		fmt.Println("Semua nilai harus diisi.")
+		return
+	}
 	fmt.Println("Rata - Rata =", average)
 
 	grade := Grading(average)
